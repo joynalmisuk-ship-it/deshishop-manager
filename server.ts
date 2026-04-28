@@ -495,9 +495,31 @@ try {
   });
 
   const PORT = Number(process.env.PORT) || 3000;
+  const DIST_PATH = path.join(APP_ROOT, "dist");
+  const INDEX_PATH = path.join(DIST_PATH, "index.html");
+
+  app.get("/api/debug-runtime", (req, res) => {
+    res.json({
+      nodeEnv: process.env.NODE_ENV || null,
+      port: PORT,
+      cwd: process.cwd(),
+      appRoot: APP_ROOT,
+      distPath: DIST_PATH,
+      distExists: fs.existsSync(DIST_PATH),
+      indexPath: INDEX_PATH,
+      indexExists: fs.existsSync(INDEX_PATH),
+    });
+  });
+
+  app.get(["/", "/index.html"], (req, res, next) => {
+    if (fs.existsSync(INDEX_PATH)) {
+      return res.sendFile(INDEX_PATH);
+    }
+    next();
+  });
 
   // Serve uploads directory statically
-  const UPLOADS_DIR = path.join(process.cwd(), "uploads");
+  const UPLOADS_DIR = path.join(APP_ROOT, "uploads");
   if (!fs.existsSync(UPLOADS_DIR)) {
     fs.mkdirSync(UPLOADS_DIR);
   }
@@ -2498,16 +2520,15 @@ try {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(APP_ROOT, "dist");
-    app.use(express.static(distPath));
+    app.use(express.static(DIST_PATH));
     app.get("/", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      res.sendFile(INDEX_PATH);
     });
     app.get("*", (req, res) => {
       if (req.path.startsWith("/api/")) {
         return res.status(404).json({ error: `API route ${req.originalUrl} not found` });
       }
-      res.sendFile(path.join(distPath, "index.html"));
+      res.sendFile(INDEX_PATH);
     });
   }
 
