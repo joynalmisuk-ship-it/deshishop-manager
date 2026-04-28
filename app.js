@@ -466,6 +466,11 @@ async function startServer() {
   const PORT = Number(process.env.PORT) || 3e3;
   const DIST_PATH = path.join(APP_ROOT, "dist");
   const INDEX_PATH = path.join(DIST_PATH, "index.html");
+  const ASSETS_PATH = path.join(DIST_PATH, "assets");
+  app.use("/assets", express.static(ASSETS_PATH, { fallthrough: false }));
+  if (APP_BASE) {
+    app.use(`${APP_BASE}/assets`, express.static(ASSETS_PATH, { fallthrough: false }));
+  }
   app.get("/api/debug-runtime", (req, res) => {
     res.json({
       nodeEnv: process.env.NODE_ENV || null,
@@ -475,6 +480,8 @@ async function startServer() {
       appRoot: APP_ROOT,
       distPath: DIST_PATH,
       distExists: fs.existsSync(DIST_PATH),
+      assetsPath: ASSETS_PATH,
+      assetsExists: fs.existsSync(ASSETS_PATH),
       indexPath: INDEX_PATH,
       indexExists: fs.existsSync(INDEX_PATH)
     });
