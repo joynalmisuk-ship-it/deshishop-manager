@@ -1,0 +1,15 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+shop.db
+backups/
+uploads/
+chrome-*/
+*.tmp
+temp.txt
+grep_out.txt
