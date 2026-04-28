@@ -17,7 +17,7 @@ Use cPanel's **Setup Node.js App** feature. This project needs Node.js because i
 
 - Node.js version: 20 or newer
 - Application root: the folder where this repo is cloned
-- Application startup file: `server.ts`
+- Application startup file: `app.js`
 - Application mode: `production`
 
 Add environment variables:
@@ -37,11 +37,10 @@ In cPanel Terminal or Node.js app screen, run:
 
 ```bash
 npm install
-npm run build
 npm start
 ```
 
-The production server serves the built React app from `dist/` and the API from the same Node app.
+The production server serves the built React app from `dist/` and the API from the same Node app. The `dist/` folder is committed for cPanel, so you do not need to run `npm run build` on the server.
 
 ## 4. Important
 
