@@ -5,7 +5,6 @@ import path from "path";
 import fs from "fs";
 import cron from "node-cron";
 import multer from "multer";
-import { google } from "googleapis";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -2359,6 +2358,13 @@ try {
     }
     
     try {
+      let google;
+      try {
+        google = (await import("googleapis")).google;
+      } catch (err) {
+        return res.status(501).json({ error: "Google Drive sync is not installed on this hosting. Local backups still work." });
+      }
+
       const credentials = JSON.parse(credentialsJson);
       const auth = new google.auth.GoogleAuth({
         credentials,
