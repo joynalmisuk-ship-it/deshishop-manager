@@ -1185,7 +1185,9 @@ export default function App() {
 
   useEffect(() => {
     if (view === 'app' && activeShopId) {
+      const socketBase = import.meta.env.BASE_URL.replace(/\/$/, '');
       const socket = io({
+        path: `${socketBase}/socket.io`,
         transports: ['websocket', 'polling']
       });
 

@@ -14,6 +14,11 @@ import { Server } from "socket.io";
 let db;
 let io;
 const APP_ROOT = path.dirname(fileURLToPath(import.meta.url));
+const normalizeBasePath = (value) => {
+  const cleaned = value.trim().replace(/^\/+|\/+$/g, "");
+  return cleaned ? `/${cleaned}` : "";
+};
+const APP_BASE = normalizeBasePath(process.env.APP_BASE || "/app");
 const JWT_SECRET = process.env.JWT_SECRET || "deshishop-secret-key-change-this";
 const BACKUP_DIR = path.join(APP_ROOT, "backups");
 if (!fs.existsSync(BACKUP_DIR)) {
@@ -428,6 +433,7 @@ async function startServer() {
   const app = express();
   const httpServer = createServer(app);
   io = new Server(httpServer, {
+    path: `${APP_BASE}/socket.io`,
     cors: {
       origin: "*",
       methods: ["GET", "POST"]
@@ -447,12 +453,23 @@ async function startServer() {
     console.log(`[${(/* @__PURE__ */ new Date()).toISOString()}] ${req.method} ${req.url}`);
     next();
   });
+  if (APP_BASE) {
+    app.use((req, res, next) => {
+      if (req.url === APP_BASE) {
+        req.url = "/";
+      } else if (req.url.startsWith(`${APP_BASE}/`)) {
+        req.url = req.url.slice(APP_BASE.length) || "/";
+      }
+      next();
+    });
+  }
   const PORT = Number(process.env.PORT) || 3e3;
   const DIST_PATH = path.join(APP_ROOT, "dist");
   const INDEX_PATH = path.join(DIST_PATH, "index.html");
   app.get("/api/debug-runtime", (req, res) => {
     res.json({
       nodeEnv: process.env.NODE_ENV || null,
+      appBase: APP_BASE,
       port: PORT,
       cwd: process.cwd(),
       appRoot: APP_ROOT,
