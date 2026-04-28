@@ -1,9 +1,13 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const appRoot = dirname(fileURLToPath(import.meta.url));
 
 const tsxBin = process.platform === "win32"
-  ? "node_modules\\.bin\\tsx.cmd"
-  : "./node_modules/.bin/tsx";
+  ? join(appRoot, "node_modules", ".bin", "tsx.cmd")
+  : join(appRoot, "node_modules", ".bin", "tsx");
 
 if (!existsSync(tsxBin)) {
   console.error("Missing tsx. Run npm install before starting the app.");
@@ -11,6 +15,7 @@ if (!existsSync(tsxBin)) {
 }
 
 const child = spawn(tsxBin, ["server.ts"], {
+  cwd: appRoot,
   stdio: "inherit",
   shell: process.platform === "win32",
   env: {
