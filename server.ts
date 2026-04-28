@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import cron from "node-cron";
 import multer from "multer";
+import { fileURLToPath } from "url";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
@@ -13,8 +14,9 @@ import { Server } from "socket.io";
 
 let db: any;
 let io: Server;
+const APP_ROOT = path.dirname(fileURLToPath(import.meta.url));
 const JWT_SECRET = process.env.JWT_SECRET || 'deshishop-secret-key-change-this';
-const BACKUP_DIR = path.join(process.cwd(), "backups");
+const BACKUP_DIR = path.join(APP_ROOT, "backups");
 
 // Ensure backup directory exists
 if (!fs.existsSync(BACKUP_DIR)) {
@@ -2496,9 +2498,15 @@ try {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), "dist");
+    const distPath = path.join(APP_ROOT, "dist");
     app.use(express.static(distPath));
+    app.get("/", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
     app.get("*", (req, res) => {
+      if (req.path.startsWith("/api/")) {
+        return res.status(404).json({ error: `API route ${req.originalUrl} not found` });
+      }
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
