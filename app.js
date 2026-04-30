@@ -587,7 +587,7 @@ async function startServer() {
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
-    if (user.role !== "admin" || user.shop_id !== 1) {
+    if (user.role !== "admin") {
       const shop = db.prepare("SELECT status FROM shops WHERE id = ?").get(user.shop_id || 1);
       if (shop && shop.status === "Pending") {
         return res.status(403).json({ error: "Your shop registration is pending approval. Please contact admin." });

@@ -663,8 +663,8 @@ try {
       return res.status(400).json({ error: "User not found" });
     }
 
-    // Check shop status (except for global admin)
-    if (user.role !== 'admin' || user.shop_id !== 1) {
+    // Check shop status for non-admin users only
+    if (user.role !== 'admin') {
       const shop: any = db.prepare("SELECT status FROM shops WHERE id = ?").get(user.shop_id || 1);
       if (shop && shop.status === 'Pending') {
         return res.status(403).json({ error: "Your shop registration is pending approval. Please contact admin." });
